@@ -1,0 +1,9 @@
+{
+  "name": "kinglight-download",
+  "private": true,
+  "type": "module",
+  "description": "Portal statis Kinglight tanpa dependensi.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Kinglight - Status rilis dan unduhan</title>
+  <meta name="description" content="Status rilis Kinglight dan tautan unduhan dari GitHub Release. Tanpa rilis terverifikasi tidak ada unduhan aktif.">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./site.css">
+  <script type="module" src="./site.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke konten utama</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./index.html" aria-label="Kinglight, ke beranda">
+        <span class="brand-name">Kinglight</span>
+        <span class="brand-sub">Portal rilis</span>
+      </a>
+      <nav class="site-nav" aria-label="Navigasi utama">
+        <a href="./index.html" aria-current="page">Beranda</a>
+        <a href="./privacy.html">Privasi</a>
+        <a href="./terms.html">Ketentuan</a>
+        <a href="./data-deletion.html">Hapus data</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">Kinglight</p>
+      <h1 id="hero-title">Status rilis dan unduhan</h1>
+      <p class="lede">Portal ini menampilkan metadata dari rilis Kinglight yang sudah diverifikasi. Tautan unduhan muncul hanya bila snapshot menyatakan rilis tersedia.</p>
+    </section>
+
+    <section id="release" class="panel" data-state="loading" aria-live="polite" aria-busy="true" aria-labelledby="release-title">
+      <p class="eyebrow">Metadata rilis</p>
+      <h2 id="release-title">Membaca metadata rilis</h2>
+      <p id="release-detail" class="muted">Menghubungkan ke snapshot statis.</p>
+      <div id="release-content"></div>
+    </section>
+
+    <noscript>
+      <section class="panel panel--notice">
+        <h2>JavaScript diperlukan</h2>
+        <p>Status rilis dibaca dari <code>release.json</code> oleh <code>site.js</code>. Aktifkan JavaScript untuk melihat keadaan rilis. Snapshot dapat dibaca langsung melalui <a href="./release.json">release.json</a>.</p>
+      </section>
+    </noscript>
+
+    <section class="section" aria-labelledby="install-title">
+      <p class="eyebrow">Pemasangan</p>
+      <h2 id="install-title">Langkah setelah rilis tersedia</h2>
+      <ol class="steps">
+        <li>
+          <span class="step-no num">01</span>
+          <div>
+            <h3>Unduh dari rilis resmi</h3>
+            <p>Gunakan tautan yang ditampilkan pada bagian status rilis. Aset berada di GitHub Release Kinglight, bukan di repositori portal.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-no num">02</span>
+          <div>
+            <h3>Periksa SHA-256</h3>
+            <p>Bandingkan hash berkas dengan nilai pada snapshot. Di PowerShell gunakan <code>Get-FileHash .\nama-berkas -Algorithm SHA256</code>. Di shell Unix gunakan <code>sha256sum nama-berkas</code>. Hash memeriksa kesesuaian berkas, bukan identitas penerbit.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-no num">03</span>
+          <div>
+            <h3>Pasang dan atur di aplikasi</h3>
+            <p>Jalankan installer yang sesuai dengan sistem operasi, lalu atur Art-Net di aplikasi desktop. Pengaturan jaringan menjadi tanggung jawab operator.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="limit-title">
+      <p class="eyebrow">Batasan</p>
+      <h2 id="limit-title">Apa yang tidak dilakukan portal</h2>
+      <p>Portal versi awal hanya melayani distribusi metadata dan dokumentasi pemasangan. Browser biasa tidak mengirim UDP Art-Net 6454 mentah. Tidak ada jembatan lokal, akun, basis data, analitik, atau pembaruan otomatis.</p>
+    </section>
+
+    <section class="section" aria-labelledby="source-title">
+      <p class="eyebrow">Sumber</p>
+      <h2 id="source-title">Repositori terkait</h2>
+      <ul class="source-list">
+        <li><a class="text-link" href="https://github.com/zzdevxx/kinglight" target="_blank" rel="noopener noreferrer">Sumber aplikasi Kinglight, tab baru</a></li>
+        <li><a class="text-link" href="https://github.com/zzdevxx/kinglight-download" target="_blank" rel="noopener noreferrer">Sumber portal ini, tab baru</a></li>
+        <li><a class="text-link" href="./release.json">Snapshot metadata rilis</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Kinglight, portal statis untuk metadata rilis.</p>
+      <nav aria-label="Navigasi bawah">
+        <a href="./privacy.html">Privasi</a>
+        <a href="./terms.html">Ketentuan</a>
+        <a href="./data-deletion.html">Hapus data</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
