@@ -239,6 +239,21 @@ export function formatPublishedAt(timestamp) {
   return `${iso.slice(0, 10)} ${iso.slice(11, 16)} UTC`;
 }
 
+function hasExtension(artifact, extension) {
+  const fileName = typeof artifact.fileName === 'string' ? artifact.fileName.toLowerCase() : '';
+  const rawUrl = typeof artifact.url === 'string' ? artifact.url.toLowerCase() : '';
+  const urlPath = rawUrl.split(/[?#]/)[0];
+  return fileName.endsWith(extension) || urlPath.endsWith(extension);
+}
+
+export function selectDownloadArtifacts(artifacts) {
+  const list = Array.isArray(artifacts) ? artifacts : [];
+  const installer = list.find((artifact) => hasExtension(artifact, '.exe')) ?? null;
+  const portable = list.find((artifact) => hasExtension(artifact, '.zip')) ?? null;
+  const primary = installer ?? list.find((artifact) => artifact !== portable) ?? portable ?? null;
+  return { installer, portable, primary };
+}
+
 async function copyText(text) {
   if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
     await navigator.clipboard.writeText(text);
@@ -293,11 +308,27 @@ function addTerm(parent, label, value, mono = false) {
 }
 
 function externalLink(label, url, className) {
-  const link = element('a', className, label);
+  const link = element('a', className);
   link.href = url;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
+  link.append(label);
+  link.append(element('span', 'sr-only', ', membuka tab baru'));
   return link;
+}
+
+function renderHeroActions(root, selection) {
+  const host = root.querySelector('#hero-actions');
+  if (!host || !selection.primary) {
+    return;
+  }
+
+  clear(host);
+  const label = selection.installer === selection.primary ? 'Unduh untuk Windows' : 'Unduh portable';
+  host.append(externalLink(label, selection.primary.url, 'btn btn--primary'));
+  if (selection.portable && selection.portable !== selection.primary) {
+    host.append(externalLink('Versi portable', selection.portable.url, 'btn btn--quiet'));
+  }
 }
 
 function actionButton(label, className, handler) {
@@ -311,77 +342,133 @@ function renderUnreleased(setState, content) {
   setState('unreleased', 'Belum ada rilis', 'Belum ada unduhan aktif pada portal ini.');
   addParagraph(
     content,
-    'Tautan unduhan ditampilkan setelah aset GitHub Release Kinglight siap dan snapshot terverifikasi diterbitkan.',
+    'Belum ada unduhan aktif. Lihat sumber aplikasi untuk perkembangan rilis.',
     'muted'
   );
 
   const list = element('ul', 'source-list');
   const item = element('li');
-  item.append(externalLink('Sumber dan rencana Kinglight, tab baru', 'https://github.com/zzdevxx/kinglight', 'text-link'));
+  item.append(externalLink('Sumber dan perkembangan Kinglight', 'https://github.com/zzdevxx/kinglight', 'text-link'));
   list.append(item);
   content.append(list);
 }
 
 function renderArtifact(artifact) {
-  const item = element('article', 'artifact');
+  const item = element('article', 'artifact-row');
   const head = element('div', 'artifact-head');
   head.append(
     element('h4', 'artifact-title', `${artifact.platform} / ${artifact.arch}`),
-    element('p', 'artifact-file mono', artifact.fileName)
+    element('p', 'artifact-file', artifact.fileName)
   );
 
-  const specs = element('dl', 'artifact-meta');
-  addTerm(specs, 'Ukuran', `${formatBytes(artifact.sizeBytes)} (${artifact.sizeBytes} byte)`);
-  addTerm(specs, 'SHA-256', artifact.sha256, true);
-
+  const size = element('p', 'artifact-size', `${formatBytes(artifact.sizeBytes)} (${artifact.sizeBytes} byte)`);
   const actions = element('div', 'artifact-actions');
-  actions.append(
-    externalLink(`Unduh ${artifact.fileName}, tab baru`, artifact.url, 'btn btn--primary'),
-    actionButton('Salin SHA-256', 'btn', async () => {
-      feedback.textContent = 'Menyalin hash.';
-      button.disabled = true;
-      try {
-        await copyText(artifact.sha256);
-        feedback.textContent = 'SHA-256 tersalin.';
-      } catch (error) {
-        feedback.textContent = 'Gagal menyalin. Pilih teks hash lalu salin manual.';
-        console.error('[kinglight-download] gagal menyalin hash', { message: error.message });
-      } finally {
-        button.disabled = false;
-      }
-    })
-  );
-
-  const feedback = element('p', 'copy-feedback muted');
-  feedback.setAttribute('role', 'status');
-  item.append(head, specs, actions, feedback);
+  actions.append(externalLink(`Unduh ${artifact.fileName}`, artifact.url, 'btn'));
+  item.append(head, size, actions);
   return item;
 }
 
-function renderAvailable(setState, content, release) {
-  setState('available', `Rilis ${release.version}`, 'Metadata berasal dari snapshot release.json.');
+function renderArtifactSpec(artifact) {
+  const block = element('div', 'artifact-spec');
+  block.append(element('h4', '', `${artifact.platform} / ${artifact.arch}`));
 
-  const meta = element('dl', 'release-meta');
-  addTerm(meta, 'Versi', release.version, true);
-  addTerm(meta, 'Tag', release.tag);
-  addTerm(meta, 'Kanal', release.channel);
-  addTerm(meta, 'Diterbitkan', formatPublishedAt(release.publishedAt));
-  addTerm(meta, 'Commit sumber', shortCommit(release.sourceCommit), true);
-  content.append(meta);
+  const specs = element('dl', 'spec-grid');
+  addTerm(specs, 'Nama berkas', artifact.fileName, true);
+  addTerm(specs, 'Ukuran', `${formatBytes(artifact.sizeBytes)} (${artifact.sizeBytes} byte)`);
+  addTerm(specs, 'SHA-256', artifact.sha256, true);
+  block.append(specs);
 
-  const links = element('div', 'release-links');
-  links.append(externalLink('Buka GitHub Release, tab baru', release.releaseUrl, 'btn btn--primary'));
-  if (release.notesUrl) {
-    links.append(externalLink('Catatan rilis, tab baru', release.notesUrl, 'btn'));
+  const feedback = element('p', 'copy-feedback');
+  feedback.setAttribute('role', 'status');
+  feedback.setAttribute('aria-live', 'polite');
+
+  const button = actionButton('Salin SHA-256', 'btn', async () => {
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    feedback.textContent = 'Menyalin hash.';
+    try {
+      await copyText(artifact.sha256);
+      feedback.textContent = 'SHA-256 tersalin.';
+    } catch (error) {
+      feedback.textContent = 'Gagal menyalin. Pilih teks hash lalu salin manual.';
+      console.error('[kinglight-download] gagal menyalin hash', { message: error.message });
+    } finally {
+      button.removeAttribute('aria-busy');
+      button.disabled = false;
+    }
+  });
+  block.append(button, feedback);
+  return block;
+}
+
+function renderAvailable(setState, content, release, root) {
+  const selection = selectDownloadArtifacts(release.artifacts);
+  const primary = selection.primary;
+  setState('available', `Versi ${release.version}`, 'Unduhan resmi dari GitHub Release Kinglight.');
+  renderHeroActions(root, selection);
+
+  const heroStatus = root.querySelector('#hero-status');
+  if (heroStatus) {
+    heroStatus.textContent = primary
+      ? `Versi ${release.version} untuk ${primary.platform} ${primary.arch}`
+      : `Versi ${release.version} tersedia`;
   }
-  content.append(links);
+  const reqPlatform = root.querySelector('#req-platform');
+  if (reqPlatform && primary) {
+    reqPlatform.textContent = `${primary.platform} / ${primary.arch}`;
+  }
+  const reqFile = root.querySelector('#req-file');
+  if (reqFile && primary) {
+    reqFile.textContent = primary.fileName;
+  }
 
-  content.append(element('h3', 'subsection-title', 'Berkas rilis'));
+  const summary = element('div', 'release-summary');
+  summary.append(
+    element('p', 'release-version', release.version),
+    element('p', 'release-context', `${release.channel}, ${formatPublishedAt(release.publishedAt)}`)
+  );
+  content.append(summary);
+
+  const actions = element('div', 'release-actions');
+  if (primary) {
+    actions.append(externalLink(`Unduh ${primary.fileName}`, primary.url, 'btn btn--primary'));
+  }
+  if (selection.portable && selection.portable !== primary) {
+    actions.append(externalLink('Versi portable', selection.portable.url, 'btn btn--quiet'));
+  }
+  actions.append(externalLink('Buka GitHub Release', release.releaseUrl, 'btn btn--quiet'));
+  content.append(actions);
+
   const list = element('div', 'artifact-list');
   for (const artifact of release.artifacts) {
     list.append(renderArtifact(artifact));
   }
   content.append(list);
+
+  const details = element('details', 'details');
+  const summaryDetails = element('summary', '', 'Rincian rilis dan SHA-256');
+  details.append(summaryDetails);
+
+  const body = element('div', 'details-body');
+  const meta = element('dl', 'spec-grid');
+  addTerm(meta, 'Versi', release.version, true);
+  addTerm(meta, 'Tag', release.tag);
+  addTerm(meta, 'Kanal', release.channel);
+  addTerm(meta, 'Diterbitkan', formatPublishedAt(release.publishedAt), true);
+  addTerm(meta, 'Commit sumber', shortCommit(release.sourceCommit), true);
+  if (release.notesUrl) {
+    const notes = element('dd');
+    notes.append(externalLink('Catatan rilis', release.notesUrl, 'text-link'));
+    meta.append(element('dt', '', 'Catatan rilis'), notes);
+  }
+  body.append(meta);
+
+  for (const artifact of release.artifacts) {
+    body.append(renderArtifactSpec(artifact));
+  }
+  addParagraph(body, 'Periksa hash berkas dengan Get-FileHash nama-berkas -Algorithm SHA256 di PowerShell.', 'muted');
+  details.append(body);
+  content.append(details);
 }
 
 export async function initPortal(root = globalThis.document) {
@@ -399,9 +486,43 @@ export async function initPortal(root = globalThis.document) {
     title.textContent = heading;
     detail.textContent = body;
     clear(content);
+
+    const heroActions = root.querySelector('#hero-actions');
+    if (heroActions) {
+      clear(heroActions);
+      const statusLink = element('a', 'btn btn-quiet', 'Lihat status rilis');
+      statusLink.href = '#download';
+      heroActions.append(statusLink);
+    }
+
+    const badge = root.querySelector('#release-badge');
+    if (badge) {
+      badge.textContent = state === 'available'
+        ? 'Tersedia'
+        : state === 'unreleased'
+          ? 'Belum terbit'
+          : state === 'invalid'
+            ? 'Tidak valid'
+            : state === 'error'
+              ? 'Gagal dimuat'
+              : 'Memuat';
+    }
+
+    const heroStatus = root.querySelector('#hero-status');
+    if (heroStatus) {
+      const tone = state === 'available' ? 'available' : state === 'error' || state === 'invalid' ? 'error' : 'loading';
+      heroStatus.dataset.tone = tone;
+      heroStatus.textContent = state === 'unreleased'
+        ? 'Belum ada unduhan aktif.'
+        : state === 'invalid'
+          ? 'Data rilis tidak valid.'
+          : state === 'error'
+            ? 'Data rilis tidak dapat dimuat.'
+            : 'Menyiapkan unduhan.';
+    }
   };
 
-  setState('loading', 'Membaca metadata rilis', 'Menghubungkan ke snapshot statis.');
+  setState('loading', 'Menyiapkan unduhan', 'Mencari rilis yang tersedia.');
 
   try {
     const response = await fetch('./release.json', { cache: 'no-store' });
@@ -412,8 +533,9 @@ export async function initPortal(root = globalThis.document) {
     const result = validateReleaseSnapshot(snapshot);
 
     if (!result.ok) {
-      setState('error', 'Metadata rilis tidak valid', result.reason);
-      addParagraph(content, 'Tautan unduhan tidak ditampilkan sampai snapshot diperbaiki.', 'muted');
+      setState('error', 'Data rilis tidak valid', result.reason);
+      panel.dataset.state = 'invalid';
+      addParagraph(content, 'Belum ada tautan unduhan yang bisa ditampilkan.', 'muted');
       return;
     }
 
@@ -422,30 +544,62 @@ export async function initPortal(root = globalThis.document) {
       return;
     }
 
-    renderAvailable(setState, content, result.release);
+    renderAvailable(setState, content, result.release, root);
   } catch (error) {
     setState(
       'error',
-      'Metadata rilis tidak dapat dimuat',
-      'Periksa koneksi lalu muat ulang halaman. Tautan unduhan tidak ditampilkan.'
+      'Data rilis tidak dapat dimuat',
+      'Periksa koneksi lalu muat ulang halaman. Belum ada tautan unduhan yang bisa ditampilkan.'
     );
-    content.append(
-      actionButton('Muat ulang metadata', 'btn btn--primary', () => {
-        void initPortal(root);
-      })
-    );
+    const retry = actionButton('Muat ulang data rilis', 'btn btn--primary', () => {
+      retry.disabled = true;
+      retry.setAttribute('aria-busy', 'true');
+      retry.textContent = 'Memuat ulang data rilis.';
+      void initPortal(root);
+    });
+    content.append(retry);
     console.error('[kinglight-download] gagal membaca release.json', {
       message: error instanceof Error ? error.message : String(error)
     });
   }
 }
 
+export function initScreenshot(root = globalThis.document) {
+  const image = root.querySelector('#simulator-screenshot');
+  const fallback = root.querySelector('#simulator-fallback');
+  if (!image || !fallback) {
+    return;
+  }
+
+  const showFallback = () => {
+    image.hidden = true;
+    fallback.hidden = false;
+  };
+  const showImage = () => {
+    image.hidden = false;
+    fallback.hidden = true;
+  };
+
+  image.addEventListener('error', showFallback);
+  image.addEventListener('load', showImage);
+
+  if (image.complete) {
+    if (image.naturalWidth > 0) {
+      showImage();
+    } else {
+      showFallback();
+    }
+  }
+}
+
 if (typeof document !== 'undefined' && typeof window !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      void initPortal(document);
-    }, { once: true });
-  } else {
+  const start = () => {
     void initPortal(document);
+    initScreenshot(document);
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
   }
 }

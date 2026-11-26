@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light">
   <title>Privasi - Kinglight</title>
   <meta name="description" content="Penjelasan data lokal dan batas log hosting pada portal Kinglight.">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./site.css">
+  <link rel="stylesheet" href="./site.css?design=remake">
 </head>
 <body>
   <a class="skip-link" href="#main">Lewati ke konten utama</a>
 
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="brand" href="./index.html" aria-label="Kinglight, ke beranda">
-        <span class="brand-name">Kinglight</span>
-        <span class="brand-sub">Portal rilis</span>
+      <a class="wordmark" href="./index.html" aria-label="Kinglight, ke beranda">
+        <span class="wordmark-mark" aria-hidden="true">KL</span>
+        <span class="wordmark-text">Kinglight</span>
       </a>
       <nav class="site-nav" aria-label="Navigasi utama">
         <a href="./index.html">Beranda</a>
@@ -27,16 +27,16 @@
     </div>
   </header>
 
-  <main id="main" class="wrap">
-    <section class="section section--first" aria-labelledby="page-title">
-      <p class="eyebrow">Kinglight</p>
+  <main id="main" class="wrap legal-main">
+    <section class="legal-section" aria-labelledby="page-title">
       <h1 id="page-title">Privasi</h1>
+      <p class="legal-lede">Portal ini menjelaskan data yang disentuh saat membaca halaman dan data lokal yang dibuat oleh aplikasi desktop Kinglight.</p>
       <div class="prose">
         <h2>Data pada portal</h2>
-        <p>Portal ini tidak membuat akun, tidak meminta informasi pribadi, dan tidak menyimpan input pengunjung di basis data. Berkas HTML, CSS, dan JavaScript dibaca langsung oleh browser.</p>
+        <p>Portal tidak membuat akun, tidak meminta informasi pribadi, dan tidak menyimpan input pengunjung di basis data. Berkas HTML, CSS, dan JavaScript dibaca langsung oleh browser.</p>
 
         <h2>Data pada perangkat pengguna</h2>
-        <p>Bila aplikasi desktop Kinglight tersedia, konfigurasi pengguna disimpan secara lokal pada perangkat. Portal tidak membaca, mengirim, atau menghapus berkas tersebut. Penghapusan data lokal dijelaskan pada halaman <a class="text-link" href="./data-deletion.html">Hapus data</a>.</p>
+        <p>Konfigurasi Kinglight disimpan secara lokal pada perangkat tempat aplikasi dipasang. Portal tidak membaca, mengirim, atau menghapus berkas tersebut. Penghapusan data lokal dijelaskan pada halaman <a href="./data-deletion.html">Hapus data</a>.</p>
 
         <h2>Log hosting</h2>
         <p>Penyedia hosting dapat menyimpan log akses berupa alamat IP, waktu permintaan, berkas yang diminta, dan agen pengguna sesuai kebijakan penyedia. Portal tidak mengendalikan isi dan masa simpan log tersebut.</p>
@@ -49,7 +49,7 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>Kinglight, portal statis untuk metadata rilis.</p>
+      <p>Kinglight. Portal statis untuk distribusi rilis dan dokumentasi lokal.</p>
       <nav aria-label="Navigasi bawah">
         <a href="./privacy.html">Privasi</a>
         <a href="./terms.html">Ketentuan</a>

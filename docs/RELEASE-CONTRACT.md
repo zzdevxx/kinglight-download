@@ -1,7 +1,7 @@
 # Kontrak Rilis kinglight-download
-Status: DRAFT PERENCANAAN.
+Status: aktif. Kontrak ini dipakai oleh rilis `v0.1.0` dan pembaruan portal berikutnya.
 
-Dokumen ini menetapkan cara `kinglight-download` membaca informasi rilis dari `kinglight`. Belum ada rilis nyata, installer, atau aset yang dihasilkan oleh dokumen ini.
+Dokumen ini menetapkan cara `kinglight-download` membaca informasi rilis dari `kinglight`. Rilis v0.2.0 sudah terbit; snapshot portal lokal diperbarui setelah kedua aset diunduh ulang dan diverifikasi.
 
 Tautan: https://github.com/zzdevxx/kinglight dan https://github.com/zzdevxx/kinglight-download
 
@@ -77,7 +77,7 @@ Tiap artefak:
 7. Pemeriksaan tautan dijalankan sebelum deploy atau pengumuman.
 8. Deploy dijalankan setelah commit portal terverifikasi.
 
-Urutan tidak boleh dibalik. Saat ini belum ada konfigurasi lintas repo dengan izin `repo_write` otomatis. Otomasi di masa depan perlu persetujuan pemilik.
+Urutan tidak boleh dibalik. Setiap rilis baru memakai tag dan URL aset yang unik.
 
 ## 6. Integritas dan keaslian
 - SHA-256 mendeteksi perubahan berkas, bukan membuktikan penerbit.
@@ -119,4 +119,4 @@ Setelah commit publish, jalankan skrip sinkronisasi pemilik. Verifikasi commit s
 - [ ] Commit portal menjadi langkah publish terakhir sebelum deploy.
 
 ## 10. Status
-Kontrak masih DRAFT, belum diuji dengan fixture, dan belum dipakai untuk rilis nyata.
+Kontrak diterapkan oleh pembaca snapshot portal, producer metadata Kinglight, dan pengujian `node:test`. Snapshot v0.2.0 dibuat dari dua aset GitHub Release yang diukur dan diverifikasi. Commit portal dan deploy GitHub Pages masih tertunda.

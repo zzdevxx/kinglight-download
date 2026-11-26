@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   SCHEMA_VERSION,
   STATUS_UNRELEASED,
   STATUS_AVAILABLE,
   initPortal,
+  initScreenshot,
   validateReleaseSnapshot,
   validateArtifact,
   parseOfficialUrl,
@@ -18,7 +19,8 @@ import {
   isIsoTimestamp,
   formatBytes,
   shortCommit,
-  formatPublishedAt
+  formatPublishedAt,
+  selectDownloadArtifacts
 } from '../site.js';
 
 const read = (path) => readFileSync(fileURLToPath(new URL(path, import.meta.url)), 'utf8');
@@ -37,6 +39,24 @@ const TEST_ARTIFACT = {
   url: TEST_ASSET_URL,
   sizeBytes: 2048,
   sha256: TEST_HASH
+};
+
+const TEST_INSTALLER = {
+  platform: 'windows',
+  arch: 'x64',
+  fileName: 'Kinglight_setup.exe',
+  url: 'https://github.com/zzdevxx/kinglight/releases/download/test-only/Kinglight_setup.exe',
+  sizeBytes: 4096,
+  sha256: 'c'.repeat(64)
+};
+
+const TEST_PORTABLE = {
+  platform: 'windows',
+  arch: 'x64',
+  fileName: 'Kinglight_portable.zip',
+  url: 'https://github.com/zzdevxx/kinglight/releases/download/test-only/Kinglight_portable.zip',
+  sizeBytes: 8192,
+  sha256: 'd'.repeat(64)
 };
 
 function availableFixture(overrides = {}) {
@@ -58,6 +78,43 @@ function withoutField(object, field) {
   const copy = { ...object };
   delete copy[field];
   return copy;
+}
+
+function screenshotRoot({ complete = false, naturalWidth = 0 } = {}) {
+  const listeners = new Map();
+  const image = {
+    hidden: true,
+    complete,
+    naturalWidth,
+    addEventListener(type, handler) {
+      listeners.set(type, handler);
+    }
+  };
+  const fallback = { hidden: false };
+  const root = {
+    querySelector(selector) {
+      if (selector === '#simulator-screenshot') return image;
+      if (selector === '#simulator-fallback') return fallback;
+      return null;
+    }
+  };
+  return {
+    image,
+    fallback,
+    root,
+    fire(type) {
+      const handler = listeners.get(type);
+      assert.equal(typeof handler, 'function', `tidak ada penangan ${type}`);
+      handler();
+    }
+  };
+}
+
+function section(html, id, nextId) {
+  const start = html.indexOf(`id="${id}"`);
+  const end = html.indexOf(`id="${nextId}"`);
+  assert.ok(start >= 0 && end > start);
+  return html.slice(start, end);
 }
 
 test('release.json adalah snapshot yang valid menurut kontrak', () => {
@@ -86,7 +143,8 @@ test('beranda memuat region status dan pembaca snapshot', () => {
   const html = read('../index.html');
   assert.match(html, /id="release"/);
   assert.match(html, /id="release-content"/);
-  assert.match(html, /<script type="module" src="\.\/site\.js"><\/script>/);
+  assert.match(html, /href="\.\/site\.css\?design=remake"/);
+  assert.match(html, /<script type="module" src="\.\/site\.js\?design=remake"><\/script>/);
   assert.match(read('../site.js'), /fetch\('\.\/release\.json'/);
 });
 
@@ -103,6 +161,7 @@ test('tidak ada versi rilis, hash rilis, atau em dash pada berkas situs', () => 
 test('semua tautan internal antarhalaman menuju berkas yang ada', () => {
   for (const page of PAGES) {
     const html = read(page);
+    assert.match(html, /href="\.\/site\.css\?design=remake"/, page);
     const targets = [...html.matchAll(/href="(\.\/[^"#]+\.html)"/g)].map((match) => match[1]);
     assert.ok(targets.length >= 3, `terlalu sedikit tautan internal pada ${page}`);
     for (const target of targets) {
@@ -293,4 +352,147 @@ test('pembantu format menghasilkan teks yang stabil', () => {
   assert.equal(shortCommit(TEST_COMMIT), 'abcdef0');
   assert.equal(formatPublishedAt('1970-01-01T00:00:00Z'), '1970-01-01 00:00 UTC');
   assert.equal(formatPublishedAt('tidak valid'), '');
+});
+
+test('pemilih unduhan memprioritaskan installer dan mengenali berkas portable', () => {
+  const both = selectDownloadArtifacts([TEST_PORTABLE, TEST_INSTALLER]);
+  assert.equal(both.installer.fileName, TEST_INSTALLER.fileName);
+  assert.equal(both.portable.fileName, TEST_PORTABLE.fileName);
+  assert.equal(both.primary.fileName, TEST_INSTALLER.fileName);
+
+  const portableOnly = selectDownloadArtifacts([TEST_PORTABLE]);
+  assert.equal(portableOnly.installer, null);
+  assert.equal(portableOnly.portable.fileName, TEST_PORTABLE.fileName);
+  assert.equal(portableOnly.primary.fileName, TEST_PORTABLE.fileName);
+
+  assert.equal(selectDownloadArtifacts([]).primary, null);
+  assert.equal(selectDownloadArtifacts(null).primary, null);
+});
+
+test('beranda memakai screenshot asli, hidden global, dan fallback yang jujur', () => {
+  const html = read('../index.html');
+  const imgTag = html.match(/<img[\s\S]*?id="simulator-screenshot"[\s\S]*?>/)?.[0] ?? '';
+  assert.match(imgTag, /src="\.\/assets\/simulator\.webp"/);
+  assert.match(imgTag, /\bhidden\b/);
+  assert.match(html, /id="simulator-fallback"/);
+  assert.match(html, /Pratinjau belum dapat ditampilkan\. Coba muat ulang halaman\./);
+  assert.doesNotMatch(html, /Letakkan berkas|sebelum halaman dipublikasikan/);
+  assert.doesNotMatch(html, /onerror\s*=/i);
+  assert.match(read('../site.css'), /\[hidden\]\s*\{\s*display:\s*none\s*!important;?\s*\}/);
+  assert.match(read('../site.js'), /initScreenshot/);
+});
+
+test('state gambar sukses dan gagal hanya menampilkan satu visual', () => {
+  const pending = screenshotRoot();
+  initScreenshot(pending.root);
+  assert.equal(pending.image.hidden, true);
+  assert.equal(pending.fallback.hidden, false);
+  pending.fire('error');
+  assert.equal(pending.image.hidden, true);
+  assert.equal(pending.fallback.hidden, false);
+  pending.fire('load');
+  assert.equal(pending.image.hidden, false);
+  assert.equal(pending.fallback.hidden, true);
+
+  const ready = screenshotRoot({ complete: true, naturalWidth: 1280 });
+  initScreenshot(ready.root);
+  assert.equal(ready.image.hidden, false);
+  assert.equal(ready.fallback.hidden, true);
+
+  const broken = screenshotRoot({ complete: true, naturalWidth: 0 });
+  initScreenshot(broken.root);
+  assert.equal(broken.image.hidden, true);
+  assert.equal(broken.fallback.hidden, false);
+});
+
+test('hero memakai unduhan tervalidasi dan tidak memasang tautan biner sebelum tersedia', () => {
+  const html = read('../index.html');
+  const heroActions = html.match(/<div id="hero-actions"[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.match(heroActions, /href="#download"/);
+  assert.doesNotMatch(heroActions, /href="https:\/\//);
+  assert.doesNotMatch(heroActions, /Pilih installer/);
+
+  const js = read('../site.js');
+  assert.match(js, /renderHeroActions/);
+  assert.match(js, /'Unduh untuk Windows'/);
+  assert.match(js, /'Versi portable'/);
+  assert.match(js, /selection\.installer === selection\.primary/);
+  assert.match(js, /primary\.url/);
+});
+
+test('copy beranda fokus pada produk dan alur simulator yang sebenarnya', () => {
+  const html = read('../index.html');
+  assert.match(html, /Latih show lighting lewat konsol virtual\. Lihat gerakan beam sebelum mengirim Art-Net\./);
+  assert.match(html, /Jalankan installer, atau ekstrak versi portable lalu buka <code>Kinglight\.exe<\/code>\./);
+  assert.match(html, /Buka unit konsol penuh, pilih Shape, lalu tekan Play Shape\./);
+  assert.match(html, /Atur size, speed, dan spread\. Art-Net opsional untuk lampu fisik\./);
+
+  const walkthrough = section(html, 'walkthrough', 'requirements');
+  assert.doesNotMatch(walkthrough, /Get-FileHash|UDP 6454|release\.json|site\.js|snapshot|basis data/i);
+  const requirements = section(html, 'requirements', 'sources-title');
+  assert.match(requirements, /Microsoft Edge WebView2 Runtime/);
+  assert.match(requirements, /Art-Net opsional untuk lampu fisik/);
+  assert.doesNotMatch(requirements, /UDP 6454|basis data|snapshot|release\.json/i);
+});
+
+test('pemeriksaan checksum hanya berada di rincian rilis', () => {
+  const walkthrough = section(read('../index.html'), 'walkthrough', 'requirements');
+  assert.doesNotMatch(walkthrough, /Get-FileHash/);
+  assert.match(read('../site.js'), /Get-FileHash nama-berkas -Algorithm SHA256/);
+});
+
+test('rincian rilis dan hash berada di dalam details yang tertutup', () => {
+  const html = read('../index.html');
+  assert.match(html, /id="release-content"/);
+  assert.doesNotMatch(html, /<details[^>]*open/i);
+  const js = read('../site.js');
+  assert.match(js, /element\('details', 'details'\)/);
+  assert.match(js, /Rincian rilis dan SHA-256/);
+  assert.match(js, /Salin SHA-256/);
+});
+
+test('bingkai screenshot tidak memakai perangkat keras tiruan', () => {
+  const html = read('../index.html');
+  const css = read('../site.css');
+  assert.match(html, /class="screenshot-frame"/);
+  assert.doesNotMatch(html, /console-frame|console-rail|rail-tick|KINGLIGHT \/ SIMULATOR|rail-unit/i);
+  assert.match(css, /\.screenshot-frame\s*\{/);
+  assert.doesNotMatch(css, /console-frame|rail-tick|box-shadow:\s*8px 8px 0/i);
+});
+
+test('font display self-hosted memakai lisensi yang disertakan', () => {
+  const css = read('../site.css');
+  assert.match(css, /@font-face/);
+  assert.match(css, /font-family:\s*"Barlow Condensed"/);
+  assert.match(css, /BarlowCondensed-Bold\.ttf/);
+  assert.match(css, /letter-spacing:\s*-0\.04em/);
+  assert.doesNotMatch(css, /Bahnschrift|DIN Alternate|letter-spacing:\s*-0\.05em/);
+  assert.ok(existsSync(fileURLToPath(new URL('../assets/fonts/BarlowCondensed-Bold.ttf', import.meta.url))));
+  assert.match(read('../assets/fonts/OFL.txt'), /SIL OPEN FONT LICENSE Version 1\.1/i);
+});
+
+test('suffix tab baru hanya untuk pembaca layar', () => {
+  for (const page of PAGES) {
+    const anchors = [...read(page).matchAll(/<a\b[^>]*href="https:\/\/[^"]+"[^>]*>[\s\S]*?<\/a>/g)].map((match) => match[0]);
+    for (const anchor of anchors) {
+      assert.match(anchor, /target="_blank"/, `${page}: ${anchor}`);
+      assert.match(anchor, /rel="noopener noreferrer"/, `${page}: ${anchor}`);
+      assert.match(anchor, /<span class="sr-only">, membuka tab baru<\/span>/, `${page}: ${anchor}`);
+      const visible = anchor.replace(/<span class="sr-only">[\s\S]*?<\/span>/g, '');
+      assert.doesNotMatch(visible, /tab baru/i, `${page}: ${anchor}`);
+    }
+  }
+  const js = read('../site.js');
+  assert.match(js, /element\('span', 'sr-only', ', membuka tab baru'\)/);
+  assert.doesNotMatch(js, /Unduh \$\{[^}]+\}, tab baru|Versi portable, tab baru|Buka GitHub Release, tab baru/);
+});
+
+test('tiga hukum privasi tersedia dan memakai chroma yang sama', () => {
+  for (const page of ['../privacy.html', '../terms.html', '../data-deletion.html']) {
+    const html = read(page);
+    assert.match(html, /class="wordmark"/, page);
+    assert.match(html, /id="main"/, page);
+    assert.match(html, /class="[^"]*\blegal-main\b/, page);
+    assert.match(html, /class="site-footer"/, page);
+  }
 });

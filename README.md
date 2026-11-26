@@ -1,7 +1,8 @@
 # kinglight-download
-Status: DRAFT PERENCANAAN.
 
-Portal statis untuk informasi unduhan Kinglight. Belum ada situs, aplikasi, installer, atau aset rilis yang dapat dijalankan. Semua berkas saat ini hanya perencanaan.
+Status: implementasi portal, screenshot asli, dan snapshot metadata v0.2.0 selesai secara lokal. GitHub Pages belum diperbarui.
+
+Portal statis untuk halaman unduhan Kinglight. Halaman utama menampilkan tangkapan layar simulator, tombol unduhan dari metadata rilis, rincian dan SHA-256 yang dapat disalin, alur kerja, persyaratan, serta tautan ke sumber resmi. Tiga halaman pendukung tersedia untuk privasi, ketentuan, dan penghapusan data lokal.
 
 Tautan kanonik:
 
@@ -9,29 +10,61 @@ Tautan kanonik:
 - Sumber portal: https://github.com/zzdevxx/kinglight-download
 - Desktop: https://github.com/zzdevxx/kinglight
 
-## Ruang lingkapan
-Portal hanya menampilkan metadata rilis terverifikasi. Biner installer tidak disimpan di Git dan tidak disalin ke portal. Aset tetap berada di GitHub Release Kinglight. Saat belum ada rilis terverifikasi, portal menampilkan `unreleased` dan tidak menampilkan tautan unduhan aktif.
+## Menjalankan lokal
 
-## Arah teknis
-Stack web belum dipilih. Astro statis direkomendasikan bila dokumentasi dan komponen ringan dibutuhkan. HTML, CSS, dan TypeScript adalah alternatif lebih sederhana. Pemilik memilih sebelum scaffold.
+Tidak ada dependensi npm. Dari direktori repo:
 
-Rute yang direncanakan: `/` untuk status rilis, `/privacy` untuk data lokal dan batas log hosting, `/terms` untuk ketentuan portal dan unduhan, `/data-deletion` untuk penghapusan data lokal di perangkat pengguna.
+```sh
+python -m http.server 4174 --bind 127.0.0.1
+node --test
+```
 
-Tidak ada akun, basis data, server aplikasi, analitik, atau AI. Tidak ada backend penghapusan data. Teks halaman tidak menyatakan kepatuhan terhadap regulasi tertentu.
+Buka `http://127.0.0.1:4174/`. Port 4174 dipakai agar tidak bentrok dengan layanan lain di workspace.
 
-## Rilis dan sinkronisasi
-Kinglight memiliki satu sumber versi dan mengukur ukuran, hash, platform, arsitektur, serta commit sumber. Portal menyimpan snapshot statis dari rilis yang sudah diverifikasi. Hash dipakai untuk integritas, bukan pembuktian identitas penerbit. Pembaruan otomatis belum masuk v1.
+## Struktur
 
-Sinkronisasi tiga platform hanya menyamakan ref Git. Aset Release dan halaman deploy tidak ikut tersalin otomatis. Remote: `origin`, `codeberg`, `github`. Push paksa dan rewrite riwayat dilarang.
+- `index.html`: halaman utama dengan hero asimetris, screenshot, unduhan, alur kerja, persyaratan, dan sumber.
+- `site.css`: token terang, font display lokal, kontrol, status, tata letak responsif 320 px sampai 1920 px, dan reduced motion.
+- `site.js`: validator kontrak rilis, pemilih artefak, render status, hero CTA, copy hash, dan fallback screenshot.
+- `privacy.html`, `terms.html`, `data-deletion.html`: hukum dan batas data lokal dengan chroma yang sama.
+- `release.json`: snapshot v0.2.0 yang dibuat setelah ukuran dan hash aset GitHub Release diverifikasi.
+- `assets/simulator.webp`: screenshot 1440x810 dari executable portable v0.2.0 yang benar-benar dijalankan.
+- `assets/fonts/`: Barlow Condensed Bold dari Google Fonts beserta `OFL.txt` dan `SOURCE.md`.
+- `tests/release-contract.test.js`: uji kontrak, metadata rilis, pemilih artefak, dan semantik halaman.
+- `docs/RELEASE-CONTRACT.md`: kontrak snapshot rilis.
+- `DESIGN.md`, `HANDOFF.md`, `DOCUMENTATION.md`: status implementasi dan arah desain terkini.
 
-## Dokumen
-- [PRD.md](PRD.md)
-- [ERD.md](ERD.md)
-- [DOCUMENTATION.md](DOCUMENTATION.md)
-- [ROADMAP.md](ROADMAP.md)
-- [AGENTS.md](AGENTS.md)
-- [HANDOFF.md](HANDOFF.md)
-- [docs/RELEASE-CONTRACT.md](docs/RELEASE-CONTRACT.md)
-- [DESIGN.md](DESIGN.md) berstatus DRAFT dan menunggu persetujuan pemilik.
+## Rilis dan unduhan
 
-Lisensi belum dipilih. Belum ada berkas `LICENSE` yang dibuat.
+Portal membaca `release.json` lewat `fetch('./release.json')` lalu memvalidasi schema dan URL resmi sebelum menampilkan tautan. Versi, tanggal, ukuran, hash, dan nama berkas tidak ditulis manual di HTML, CSS, atau JavaScript.
+
+Bila snapshot `available`, hero memakai `.exe` sebagai "Unduh untuk Windows" dan menampilkan "Versi portable" bila artefak `.zip` tersedia. Status `loading`, `unreleased`, `invalid`, dan `error` tidak memasang tautan biner. Artefak tetap berada di GitHub Release Kinglight. Installer biner tidak masuk Git portal.
+
+Kinglight pada Windows memerlukan Microsoft Edge WebView2 Runtime. Jaringan hanya diperlukan bila ingin mengirim Art-Net ke lampu fisik.
+
+Tautan CSS dan JavaScript memakai `?design=remake` sebagai cache key stabil. Ini bukan nomor versi aplikasi dan tidak menggantikan validasi URL rilis.
+
+## Aset visual
+
+`index.html` merujuk screenshot asli 1440x810 di `assets/simulator.webp`, diambil dari aplikasi portable yang dijalankan. Bila gambar gagal dimuat, halaman menampilkan `Pratinjau belum dapat ditampilkan. Coba muat ulang halaman.`. Aturan `[hidden]` global memastikan gambar rusak dan fallback tidak tampil bersamaan.
+
+Tidak ada gambar yang dihasilkan, video yang disalin, logo baru, antarmuka konsol tiruan, atau tangkapan layar tiruan dari sesi ini. Bingkai screenshot memakai border tajam dan bayangan lembut.
+
+Font display disimpan lokal. Tidak ada permintaan font ke pihak ketiga saat halaman dibuka. Lisensi font berada di `assets/fonts/OFL.txt`.
+
+## Batasan
+
+Portal tidak memiliki akun, basis data, server aplikasi, analitik, AI, atau backend penghapusan data. Browser tidak mengirim UDP Art-Net 6454 mentah. Konfigurasi jaringan dan fixture menjadi tanggung jawab operator.
+
+Sinkronisasi tiga remote hanya menyamakan ref Git. Remote: `origin`, `codeberg`, `github`. Aset GitHub Release dan halaman deploy tidak ikut tersalin otomatis. Push paksa, mirror, reset, dan rewrite riwayat dilarang.
+
+## Verifikasi
+
+```sh
+node --test
+git status --short --branch
+```
+
+Hasil lokal terakhir: 27 pengujian lulus, 0 gagal. Render browser pada 320, 375, 768, 1024, 1440, dan 1920 px tidak menunjukkan overflow horizontal; kontrol terkecil 44 px. Uji state gambar sukses dan gagal menunjukkan hanya satu visual yang tampil. Console browser tidak memuat error setelah rute asli dan fixture disiapkan.
+
+Rilis aplikasi v0.2.0 sudah tersedia di GitHub. Snapshot portal sudah diperbarui secara lokal; commit, sinkronisasi cloud, dan deploy masih tertunda.

@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light">
   <title>Hapus data - Kinglight</title>
   <meta name="description" content="Cara menghapus data lokal Kinglight dari perangkat pengguna.">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./site.css">
+  <link rel="stylesheet" href="./site.css?design=remake">
 </head>
 <body>
   <a class="skip-link" href="#main">Lewati ke konten utama</a>
 
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="brand" href="./index.html" aria-label="Kinglight, ke beranda">
-        <span class="brand-name">Kinglight</span>
-        <span class="brand-sub">Portal rilis</span>
+      <a class="wordmark" href="./index.html" aria-label="Kinglight, ke beranda">
+        <span class="wordmark-mark" aria-hidden="true">KL</span>
+        <span class="wordmark-text">Kinglight</span>
       </a>
       <nav class="site-nav" aria-label="Navigasi utama">
         <a href="./index.html">Beranda</a>
@@ -27,30 +27,30 @@
     </div>
   </header>
 
-  <main id="main" class="wrap">
-    <section class="section section--first" aria-labelledby="page-title">
-      <p class="eyebrow">Kinglight</p>
+  <main id="main" class="wrap legal-main">
+    <section class="legal-section" aria-labelledby="page-title">
       <h1 id="page-title">Hapus data</h1>
+      <p class="legal-lede">Portal tidak memiliki akun atau basis data pengunjung. Penghapusan data lokal dilakukan dari perangkat pengguna.</p>
       <div class="prose">
         <h2>Data pada portal</h2>
         <p>Portal tidak memiliki akun, basis data, atau backend penghapusan data. Tidak ada data pengunjung yang disimpan portal, sehingga tidak ada permintaan penghapusan yang dapat diproses dari halaman ini.</p>
 
         <h2>Data pada perangkat</h2>
-        <p>Bila aplikasi desktop Kinglight digunakan, konfigurasi berada pada perangkat tempat aplikasi dipasang. Hentikan aplikasi, lalu hapus berkas konfigurasi sesuai petunjuk resmi di repositori sumber. Periksa nama folder dan isi sebelum menghapus berkas.</p>
+        <p>Konfigurasi Kinglight berada pada perangkat tempat aplikasi dipasang. Hentikan aplikasi, lalu hapus berkas konfigurasi sesuai petunjuk resmi di repositori sumber. Periksa nama folder dan isi sebelum menghapus berkas.</p>
         <p>Portal tidak dapat mengakses atau menghapus berkas pada perangkat pengguna. Tidak ada tautan penghapusan yang mengirim perintah ke aplikasi.</p>
 
         <h2>Log hosting</h2>
         <p>Log akses disimpan oleh penyedia hosting sesuai kebijakan penyedia. Portal tidak mengendalikan masa simpan log tersebut dan tidak menyediakan layanan penghapusan log.</p>
 
         <h2>Butuh rujukan</h2>
-        <p>Lihat <a class="text-link" href="./privacy.html">Privasi</a> untuk rincian data yang disebutkan di portal, atau buka <a class="text-link" href="https://github.com/zzdevxx/kinglight" target="_blank" rel="noopener noreferrer">repositori sumber, tab baru</a> untuk petunjuk aplikasi desktop.</p>
+        <p>Lihat <a href="./privacy.html">Privasi</a> untuk rincian data yang disebutkan di portal, atau buka <a href="https://github.com/zzdevxx/kinglight" target="_blank" rel="noopener noreferrer">repositori sumber<span class="sr-only">, membuka tab baru</span></a> untuk petunjuk aplikasi desktop.</p>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>Kinglight, portal statis untuk metadata rilis.</p>
+      <p>Kinglight. Portal statis untuk distribusi rilis dan dokumentasi lokal.</p>
       <nav aria-label="Navigasi bawah">
         <a href="./privacy.html">Privasi</a>
         <a href="./terms.html">Ketentuan</a>
