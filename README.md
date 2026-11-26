@@ -1,6 +1,6 @@
 # kinglight-download
 
-Status: implementasi portal, screenshot asli, dan snapshot metadata v0.2.0 selesai secara lokal. GitHub Pages belum diperbarui.
+Status: portal v0.2.0 live di GitHub Pages. Snapshot dan tautan aset cocok dengan rilis GitHub yang terverifikasi.
 
 Portal statis untuk halaman unduhan Kinglight. Halaman utama menampilkan tangkapan layar simulator, tombol unduhan dari metadata rilis, rincian dan SHA-256 yang dapat disalin, alur kerja, persyaratan, serta tautan ke sumber resmi. Tiga halaman pendukung tersedia untuk privasi, ketentuan, dan penghapusan data lokal.
 
@@ -67,4 +67,4 @@ git status --short --branch
 
 Hasil lokal terakhir: 27 pengujian lulus, 0 gagal. Render browser pada 320, 375, 768, 1024, 1440, dan 1920 px tidak menunjukkan overflow horizontal; kontrol terkecil 44 px. Uji state gambar sukses dan gagal menunjukkan hanya satu visual yang tampil. Console browser tidak memuat error setelah rute asli dan fixture disiapkan.
 
-Rilis aplikasi v0.2.0 sudah tersedia di GitHub. Snapshot portal sudah diperbarui secara lokal; commit, sinkronisasi cloud, dan deploy masih tertunda.
+Rilis aplikasi v0.2.0 tersedia di GitHub dan portal live di GitHub Pages. `node ../kinglight/scripts/verify-portal.mjs` memeriksa halaman, snapshot, ukuran, dan hash aset.

@@ -1,6 +1,6 @@
 # HANDOFF
 
-Status: implementasi portal, screenshot aktual, dan snapshot metadata v0.2.0 selesai secara lokal pada 2026-11-26. Aplikasi v0.2.0 sudah diterbitkan ke GitHub; commit portal, sinkronisasi, dan deploy masih tertunda.
+Status: portal v0.2.0 live di GitHub Pages. Commit portal dan source tersinkron ke tiga remote. Verifikasi live memastikan metadata, screenshot, dan aset unduhan cocok.
 
 ## Yang sudah dikerjakan
 
@@ -16,11 +16,12 @@ Status: implementasi portal, screenshot aktual, dan snapshot metadata v0.2.0 sel
 - `DESIGN.md`, `README.md`, `DOCUMENTATION.md`, `docs/RELEASE-CONTRACT.md`: status implementasi dan keputusan desain diperbarui.
 - `.needmcp/state.json`: style `blueprint-technical`, `dna: null`, sesuai arahan sesi induk. Panduan komponen dipakai, tetapi warna dan komposisi mengikuti brief pemilik.
 
-## Sisa gerbang
+## Hasil publish
 
-1. Jalankan tes dan inspeksi browser ulang setelah snapshot `release.json` v0.2.0.
-2. Commit portal, sinkronkan ke tiga remote, dan verifikasi HEAD yang sama.
-3. Pastikan GitHub Pages menampilkan snapshot, screenshot, dan tautan aset terbaru.
+1. `node --test`: 27 lulus, 0 gagal.
+2. `verify-portal.mjs`: 9 pemeriksaan live lulus, termasuk ukuran dan SHA-256 dua aset.
+3. HEAD kedua repo sama di GitLab, Codeberg, dan GitHub; tag `v0.2.0` menunjuk commit build.
+4. GitHub Pages menampilkan v0.2.0 dengan screenshot asli, installer dan portable ZIP.
 
 Catatan: installer NSIS belum dipasang karena instalasi uji v0.1.0 harus tetap dipertahankan.
 
@@ -40,12 +41,9 @@ Catatan: installer NSIS belum dipasang karena instalasi uji v0.1.0 harus tetap d
 - Fixture dua artefak: hero menampilkan "Unduh untuk Windows" dari `.exe` dan "Versi portable" dari `.zip`.
 - Font Barlow Condensed terbaca terpakai di browser lokal. Console error 0.
 
-## Langkah sesi induk
+## Bukti browser
 
-1. Jalankan `node --test` dan periksa halaman pada enam lebar di atas setelah metadata v0.2.0 tersedia.
-2. Verifikasi CTA dan unduh kedua aset dari Release, lalu cocokkan ukuran dan SHA-256 dengan snapshot.
-3. Commit portal, sinkronkan kedua repo dengan tool workspace, dorong tag v0.2.0 ke remote yang belum memilikinya, lalu verifikasi HEAD dan tag.
-4. Periksa halaman GitHub Pages live dan jalankan skrip verifikasi portal. Jika satu remote gagal, hentikan klaim selesai dan laporkan.
+Browser lokal dan live diuji pada 320, 375, 768, 1024, 1440, dan 1920 px. Tidak ada horizontal overflow. Screenshot 1440x810 dimuat, kedua CTA menuju aset rilis v0.2.0, rincian dapat dibuka dan ditutup, tombol SHA-256 memberi umpan balik sukses, dan console tidak mencatat error.
 
 ## Batas tetap
 

@@ -1,6 +1,6 @@
 # Arah desain kinglight-download
 
-Status: diterapkan secara lokal pada 2026-11-26 dengan screenshot dari portable v0.2.0 dan metadata rilis terverifikasi. Belum di-commit atau di-deploy.
+Status: portal v0.2.0 live pada 2026-11-26 dengan screenshot dari portable dan metadata rilis terverifikasi.
 
 ## Design Read
 
@@ -77,4 +77,4 @@ Tautan CSS dan JavaScript memakai query stabil `?design=remake` agar pengunjung 
 
 ## Gerbang desain
 
-Gerbang akhir: verifikasi ulang screenshot pada halaman, render pada lebar di atas, console, overflow, tombol unduhan, dan hash terhadap metadata rilis v0.2.0. Commit portal, sinkronisasi tiga remote, serta deploy belum dilakukan.
+Gerbang desain lulus: screenshot tampil, enam lebar layar tidak overflow, kontrol download dan salin hash bekerja, dan console bersih. Snapshot live cocok dengan rilis v0.2.0.

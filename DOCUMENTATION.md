@@ -1,6 +1,6 @@
 # Dokumentasi Teknis
 
-Status: implementasi portal, screenshot aplikasi, dan metadata lokal v0.2.0 selesai pada 2026-11-26. GitHub Pages masih menampilkan commit yang dipublikasikan sebelumnya.
+Status: portal v0.2.0 dipublikasikan di GitHub Pages pada 2026-11-26. Snapshot live dan kedua aset telah diverifikasi.
 
 Portal `kinglight-download` adalah situs statis tanpa build step, dependensi npm, akun, basis data, server aplikasi, analitik, atau AI. Browser memuat HTML, CSS, JavaScript, lalu membaca `release.json` dari direktori yang sama.
 
@@ -95,11 +95,8 @@ Baca [docs/RELEASE-CONTRACT.md](docs/RELEASE-CONTRACT.md). Ringkasan:
 
 ## Publish
 
-1. Jalankan `node --test` setelah snapshot metadata diperbarui.
-2. Render halaman dan periksa screenshot, fallback, overflow, fokus keyboard, urutan CTA, serta tautan unduhan.
-3. Cocokkan hash berkas unduhan live dengan snapshot.
-4. Commit portal setelah pemeriksaan lokal lulus.
-5. Sinkronkan `origin`, `codeberg`, dan `github` memakai skrip workspace. Verifikasi commit sama di ketiga remote.
-6. Periksa deploy GitHub Pages dan jalankan verifikasi portal live.
+Rilis v0.2.0 telah mengikuti urutan tersebut. `node --test` lulus 27 tes. Browser lokal dan live memverifikasi render responsif pada enam lebar, screenshot 1440x810, link installer dan portable, kontrol salin SHA-256, serta console tanpa error. `scripts/verify-portal.mjs` lulus sembilan pemeriksaan terhadap halaman, snapshot, ukuran, dan hash dua aset.
+
+Commit portal dan source tersinkron di `origin`, `codeberg`, dan `github`. GitHub Pages memuat snapshot `v0.2.0`.
 
 Jika salah satu remote gagal atau lebih maju, hentikan klaim publish lengkap dan minta keputusan. Push paksa, mirror, reset, dan rewrite riwayat dilarang.

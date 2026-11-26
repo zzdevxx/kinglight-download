@@ -1,7 +1,7 @@
 # Kontrak Rilis kinglight-download
 Status: aktif. Kontrak ini dipakai oleh rilis `v0.1.0` dan pembaruan portal berikutnya.
 
-Dokumen ini menetapkan cara `kinglight-download` membaca informasi rilis dari `kinglight`. Rilis v0.2.0 sudah terbit; snapshot portal lokal diperbarui setelah kedua aset diunduh ulang dan diverifikasi.
+Dokumen ini menetapkan cara `kinglight-download` membaca informasi rilis dari `kinglight`. Rilis v0.2.0 dan snapshot portal live telah diverifikasi terhadap kedua aset yang diunduh ulang.
 
 Tautan: https://github.com/zzdevxx/kinglight dan https://github.com/zzdevxx/kinglight-download
 
@@ -107,16 +107,16 @@ Yang tersinkron hanya commit dan ref Git portal. Yang tidak tersinkron otomatis:
 Setelah commit publish, jalankan skrip sinkronisasi pemilik. Verifikasi commit sama dengan `git ls-remote` pada ketiga remote. Jika satu gagal, hentikan klaim publikasi lengkap dan laporkan. Push paksa, mirror, reset, dan rewrite riwayat dilarang.
 
 ## 9. Pemeriksaan publish
-- [ ] Snapshot sesuai `schemaVersion: 1`.
-- [ ] Status `unreleased` atau `available`.
-- [ ] Snapshot `unreleased` tidak memiliki artefak.
-- [ ] Field `available` hadir dan tidak kosong.
-- [ ] URL aset dan `releaseUrl` dapat diakses.
-- [ ] Hash dan ukuran berasal dari aset yang sudah diunggah.
-- [ ] Versi tidak ditulis manual di komponen tampilan.
-- [ ] Tidak ada installer biner di Git portal.
-- [ ] Tidak ada klaim kepatuhan atau sertifikasi.
-- [ ] Commit portal menjadi langkah publish terakhir sebelum deploy.
+- [x] Snapshot sesuai `schemaVersion: 1`.
+- [x] Status `unreleased` atau `available`.
+- [x] Snapshot `unreleased` tidak memiliki artefak.
+- [x] Field `available` hadir dan tidak kosong.
+- [x] URL aset dan `releaseUrl` dapat diakses.
+- [x] Hash dan ukuran berasal dari aset yang sudah diunggah.
+- [x] Versi tidak ditulis manual di komponen tampilan.
+- [x] Tidak ada installer biner di Git portal.
+- [x] Tidak ada klaim kepatuhan atau sertifikasi.
+- [x] Commit portal menjadi langkah publish terakhir sebelum deploy.
 
 ## 10. Status
-Kontrak diterapkan oleh pembaca snapshot portal, producer metadata Kinglight, dan pengujian `node:test`. Snapshot v0.2.0 dibuat dari dua aset GitHub Release yang diukur dan diverifikasi. Commit portal dan deploy GitHub Pages masih tertunda.
+Kontrak diterapkan oleh pembaca snapshot portal, producer metadata Kinglight, dan pengujian `node:test`. Snapshot v0.2.0 live dan terverifikasi; kedua aset cocok ukuran serta SHA-256. Commit portal tersinkron di tiga remote dan menjadi sumber deploy GitHub Pages.
