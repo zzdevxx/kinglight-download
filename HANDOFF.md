@@ -12,7 +12,7 @@ Seluruh isi berstatus DRAFT. Belum ada situs, kode, installer, aset rilis, commi
 | Framework web | Menentukan scaffold P1. Astro statis direkomendasikan bila dokumentasi dan komponen ringan dibutuhkan. HTML, CSS, dan TypeScript adalah alternatif sederhana. |
 | `DESIGN.md` | Arah visual sebelum halaman dibuat. |
 | Lisensi | Menentukan pembuatan `LICENSE`. Belum ada lisensi dipilih. |
-| Target deploy dan domain | Menentukan publish P3. Tidak boleh mengubah proyek lain. |
+| Target deploy dan domain | GitHub Pages aktif di `https://zzdevxx.github.io/kinglight-download/`. Domain kustom tidak dipakai. |
 | Sertifikat penandatanganan | Menentukan relevansi P4. Tidak boleh memakai sertifikat palsu. |
 | Otomasi snapshot lintas repo | Izin tulis belum ada dan belum disetujui. |
 

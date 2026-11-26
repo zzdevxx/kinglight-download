@@ -5,7 +5,8 @@ Portal statis untuk informasi unduhan Kinglight. Belum ada situs, aplikasi, inst
 
 Tautan kanonik:
 
-- Portal: https://github.com/zzdevxx/kinglight-download
+- Portal live: https://zzdevxx.github.io/kinglight-download/
+- Sumber portal: https://github.com/zzdevxx/kinglight-download
 - Desktop: https://github.com/zzdevxx/kinglight
 
 ## Ruang lingkapan
