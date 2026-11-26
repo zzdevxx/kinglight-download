@@ -1,1 +1,20 @@
-{"schemaVersion":1,"status":"unreleased","artifacts":[]}
+{
+  "schemaVersion": 1,
+  "status": "available",
+  "version": "0.1.0",
+  "tag": "v0.1.0",
+  "sourceCommit": "304b762310f534c542c8c91bc6518481c8148af6",
+  "publishedAt": "2026-11-26T00:16:23Z",
+  "channel": "stable",
+  "releaseUrl": "https://github.com/zzdevxx/kinglight/releases/tag/v0.1.0",
+  "artifacts": [
+    {
+      "platform": "windows",
+      "arch": "x64",
+      "fileName": "Kinglight_0.1.0_x64-setup.exe",
+      "url": "https://github.com/zzdevxx/kinglight/releases/download/v0.1.0/Kinglight_0.1.0_x64-setup.exe",
+      "sizeBytes": 2102443,
+      "sha256": "fcf8ec0aa03411d803a56d255671368bd84d162b251dcc0a1308790e5ffb4525"
+    }
+  ]
+}

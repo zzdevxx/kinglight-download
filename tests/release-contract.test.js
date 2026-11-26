@@ -60,14 +60,17 @@ function withoutField(object, field) {
   return copy;
 }
 
-test('release.json adalah snapshot unreleased yang tepat', () => {
-  const raw = read('../release.json');
-  assert.equal(raw, '{"schemaVersion":1,"status":"unreleased","artifacts":[]}');
-  assert.deepEqual(JSON.parse(raw), {
-    schemaVersion: 1,
-    status: 'unreleased',
-    artifacts: []
-  });
+test('release.json adalah snapshot yang valid menurut kontrak', () => {
+  const parsed = JSON.parse(read('../release.json'));
+  const result = validateReleaseSnapshot(parsed);
+  assert.equal(result.ok, true, result.error?.message);
+  assert.equal(parsed.schemaVersion, SCHEMA_VERSION);
+  assert.ok(parsed.status === STATUS_UNRELEASED || parsed.status === STATUS_AVAILABLE);
+  assert.ok(Array.isArray(parsed.artifacts));
+  if (parsed.status === STATUS_AVAILABLE) {
+    assert.ok(parsed.artifacts.length > 0);
+    assert.ok(isSha256(parsed.artifacts[0].sha256));
+  }
 });
 
 test('.nojekyll hadir dan kosong', () => {
